@@ -37,12 +37,19 @@ A beautiful, kid-friendly web interface for controlling the mBuff robot. Built w
 3. **Set up environment variables**
    ```bash
    cp .env.example .env
+   # IMPORTANT: Edit .env with your robot's actual settings
+   nano .env  # or use your preferred editor
    ```
-   Edit `.env` and set your robot's API URL:
+   
+   **ðŸ”’ SECURITY NOTE**: Never commit your `.env` file to version control!
+   
+   Update the `.env` file with your robot's actual settings:
    ```
    VITE_ROBOT_API_URL=http://your-robot-ip:5000
+   MBOT_HOST=your-robot-ip
+   MBOT_PORT=9000
    ```
-
+   
 4. **Start the development server**
    ```bash
    npm run dev
@@ -80,18 +87,18 @@ A beautiful, kid-friendly web interface for controlling the mBuff robot. Built w
 ```
 src/
 +-- components/          # React components
-¦   +-- RobotHeader.tsx     # Header with status
-¦   +-- ControlsSection.tsx # Main control interface  
-¦   +-- DanceSection.tsx    # Dance moves
-¦   +-- SayingsSection.tsx  # Robot sayings
-¦   +-- CameraFeed.tsx      # Live camera
-¦   +-- RobotFooter.tsx     # Footer
+ï¿½   +-- RobotHeader.tsx     # Header with status
+ï¿½   +-- ControlsSection.tsx # Main control interface  
+ï¿½   +-- DanceSection.tsx    # Dance moves
+ï¿½   +-- SayingsSection.tsx  # Robot sayings
+ï¿½   +-- CameraFeed.tsx      # Live camera
+ï¿½   +-- RobotFooter.tsx     # Footer
 +-- services/            # API services
-¦   +-- robotApi.ts         # Robot API client
+ï¿½   +-- robotApi.ts         # Robot API client
 +-- config/              # Configuration
-¦   +-- robot.ts            # Robot settings
+ï¿½   +-- robot.ts            # Robot settings
 +-- types/               # TypeScript types
-¦   +-- robot.ts            # Type definitions
+ï¿½   +-- robot.ts            # Type definitions
 +-- hooks/               # Custom hooks
     +-- useRobotStatus.ts   # Status monitoring
 ```
