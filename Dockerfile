@@ -2,23 +2,21 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Accept API URL at build time
+ARG VITE_ROBOT_API_URL
+ENV VITE_ROBOT_API_URL=${VITE_ROBOT_API_URL}
+
 # Copy package files
 COPY package*.json ./
-
-# Install ALL dependencies (including dev dependencies needed for build)
 RUN npm ci
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Build the application
+# Build (Vite will inline VITE_ROBOT_API_URL)
 RUN npm run build
 
-# Install serve to serve static files
+# Serve the static build
 RUN npm install -g serve
-
-# Expose port
 EXPOSE 3000
-
-# Start the application
 CMD ["serve", "-s", "dist", "-l", "3000"]

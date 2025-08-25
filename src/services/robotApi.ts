@@ -1,95 +1,57 @@
-import { API_BASE_URL, ENDPOINTS } from '../config/robot';
-import { RobotStatus } from '../types/robot';
+// src/services/robotApi.ts
+type HttpMethod = "GET" | "POST";
 
-class RobotApiService {
-  private async makeRequest(endpoint: string, method: 'GET' | 'POST' = 'POST', payload?: any) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: payload ? JSON.stringify(payload) : undefined,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      // Return a default response when API is not available instead of throwing
-      console.warn('Robot API not available:', error);
-      return { 
-        connected: false, 
-        battery: 0, 
-        status: 'disconnected',
-        error: error instanceof Error ? error.message : 'API not available'
-      };
-      throw error;
-    }
+function resolveApiBase(): string {
+  // 1) Prefer build-time Vite var if present
+  const viteVar =
+    // @ts-expect-error Vite injects this in prod builds
+    (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_ROBOT_API_URL)
+      ? import.meta.env.VITE_ROBOT_API_URL as string
+      : undefined;
+
+  // 2) Allow a runtime override (handy for debugging)
+  // e.g., window.ROBOT_API="http://172.16.68.73:5001"
+  // @ts-expect-error window global
+  const runtimeVar: string | undefined = typeof window !== "undefined" ? window.ROBOT_API : undefined;
+
+  // 3) Fallback to same host, port 5001
+  const inferred =
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.hostname}:5001`
+      : "http://localhost:5001";
+
+  return (viteVar || runtimeVar || inferred).replace(/\/+$/, ""); // trim trailing slashes
+}
+
+const API_BASE = resolveApiBase();
+
+async function makeRequest<T = unknown>(path: string, method: HttpMethod = "GET", body?: any): Promise<T> {
+  const url = `${API_BASE}${path}`;
+  const opts: RequestInit = {
+    method,
+    headers: { "Content-Type": "application/json" },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  };
+
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${res.statusText} for ${url}: ${text}`);
   }
-
-  // Movement controls
-  async moveForward() {
-    return this.makeRequest(ENDPOINTS.MOVE_FORWARD);
-  }
-
-  async moveBackward() {
-    return this.makeRequest(ENDPOINTS.MOVE_BACKWARD);
-  }
-
-  async moveLeft() {
-    return this.makeRequest(ENDPOINTS.MOVE_LEFT);
-  }
-
-  async moveRight() {
-    return this.makeRequest(ENDPOINTS.MOVE_RIGHT);
-  }
-
-  async stop() {
-    return this.makeRequest(ENDPOINTS.STOP);
-  }
-
-  // Spin controls
-  async spinLeft() {
-    return this.makeRequest('/api/spin/left');
-  }
-
-  async spinRight() {
-    return this.makeRequest('/api/spin/right');
-  }
-
-  async spinBackLeft() {
-    return this.makeRequest('/api/spin/back-left');
-  }
-
-  async spinBackRight() {
-    return this.makeRequest('/api/spin/back-right');
-  }
-
-  // Entertainment controls
-  async dance(danceId: number) {
-    return this.makeRequest(ENDPOINTS.DANCE, 'POST', { dance_id: danceId });
-  }
-
-  async playSong(songId: number) {
-    return this.makeRequest(ENDPOINTS.SONG, 'POST', { song_id: songId });
-  }
-
-  async speak(sayingId: number) {
-    return this.makeRequest(ENDPOINTS.SPEAK, 'POST', { saying_id: sayingId });
-  }
-
-  // Status
-  async getStatus(): Promise<RobotStatus> {
-    return this.makeRequest(ENDPOINTS.STATUS, 'GET');
-  }
-
-  // Camera feed URL
-  getCameraFeedUrl(): string {
-    return `${API_BASE_URL}${ENDPOINTS.CAMERA_FEED}`;
+  // try json, allow empty body
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return undefined as unknown as T;
   }
 }
 
-export const robotApi = new RobotApiService();
+// Public API
+export const robotApi = {
+  getStatus: () => makeRequest("/api/status"),
+  moveForward: () => makeRequest("/api/move/forward", "POST"),
+  moveBackward: () => makeRequest("/api/move/backward", "POST"),
+  moveLeft: () => makeRequest("/api/move/left", "POST"),
+  moveRight: () => makeRequest("/api/move/right", "POST"),
+  stop: () => makeRequest("/api/move/stop", "POST"),
+};
