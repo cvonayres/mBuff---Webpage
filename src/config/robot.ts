@@ -1,7 +1,7 @@
 import { DanceMove, Song, Saying } from '../types/robot';
 
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_ROBOT_API_URL || 'http://localhost:5000';
+export const API_BASE_URL = import.meta.env.VITE_ROBOT_API_URL || 'http://localhost:5001';
 
 // API Endpoints
 export const ENDPOINTS = {
