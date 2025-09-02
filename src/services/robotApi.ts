@@ -83,8 +83,6 @@ export const robotApi = {
   // Keep generic + legacy helpers so older components don’t crash:
   makeRequest,
   getCameraFeedUrl: () => `${API_BASE}/api/camera/feed/rechunk`,
-
-
 };
 
 // Keep default export for legacy imports: `import api from ...`
