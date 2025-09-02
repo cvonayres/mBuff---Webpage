@@ -59,7 +59,7 @@ export const robotApi = {
   moveLeft: () => makeRequest("/api/move/left", "POST"),
   moveRight: () => makeRequest("/api/move/right", "POST"),
   stop: () => makeRequest("/api/move/stop", "POST"),
-    speedUp: () => makeRequest("/api/move/speedup", "POST"),
+  speedUp: () => makeRequest("/api/move/speedup", "POST"),
   speedDown: () => makeRequest("/api/move/speeddown", "POST"),
   rotateTopLeft: () => makeRequest("/api/rotate/topleft", "POST"),
   rotateTopRight: () => makeRequest("/api/rotate/topright", "POST"),
@@ -69,9 +69,8 @@ export const robotApi = {
   spinRight: () => makeRequest("/api/rotate/topright", "POST"),
   spinBackLeft: () => makeRequest("/api/rotate/bottomleft", "POST"),
   spinBackRight: () => makeRequest("/api/rotate/bottomright", "POST"),
-  dance: (id: number) => makeRequest(`/api/move/dance/${id}`, "POST"),
+  dance: (id: number) => makeRequest(`/api/dance/${id}`, "POST"),
   playSong: (id: number) => makeRequest(`/api/song/${id}`, "POST"),
-  speak: (id: number) => makeRequest(`/api/say/${id}`, "POST"),
   say: (id: number) => makeRequest(`/api/say/${id}`, "POST"),
 
   /**

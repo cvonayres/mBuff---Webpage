@@ -4,14 +4,13 @@ import { SAYINGS } from '../config/robot';
 import { robotApi } from '../services/robotApi';
 
 export const SayingsSection: React.FC = () => {
-  const handleSpeak = async (sayingId: number) => {
-    try {
-      await robotApi.speak(sayingId);
-    } catch (error) {
-      console.error('Failed to speak:', error);
-    }
-  };
-
+const handleSpeak = async (sayingId: number) => {
+  try {
+    await robotApi.say(sayingId);
+  } catch (error) {
+    console.error('Failed to say:', error);
+  }
+};
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 h-full">
       <div className="flex items-center space-x-2 mb-4">
