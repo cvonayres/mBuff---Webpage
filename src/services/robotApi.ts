@@ -11,7 +11,8 @@ function resolveApiBase(): string {
 
   // Allow runtime override for quick testing: window.ROBOT_API = "http://<IP>:5001"
   // @ts-ignore
-  const runtimeVar: string | undefined = typeof window !== "undefined" ? window.ROBOT_API : undefined;
+  const runtimeVar: string | undefined =
+    typeof window !== "undefined" ? (window as any).ROBOT_API : undefined;
 
   // Fallback: same host, port 5001
   const inferred =
@@ -24,7 +25,11 @@ function resolveApiBase(): string {
 
 const API_BASE = resolveApiBase();
 
-async function makeRequest<T = unknown>(path: string, method: HttpMethod = "GET", body?: any): Promise<T> {
+async function makeRequest<T = unknown>(
+  path: string,
+  method: HttpMethod = "GET",
+  body?: any
+): Promise<T> {
   const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
     method,
@@ -35,8 +40,15 @@ async function makeRequest<T = unknown>(path: string, method: HttpMethod = "GET"
     const text = await res.text().catch(() => "");
     throw new Error(`HTTP ${res.status} ${res.statusText} for ${url}: ${text}`);
   }
-  try { return (await res.json()) as T; } catch { return undefined as unknown as T; }
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return undefined as unknown as T;
+  }
 }
+
+// RGB tuple type for Sense HAT
+export type RGB = [number, number, number];
 
 // New-style helpers
 export const robotApi = {
@@ -48,9 +60,18 @@ export const robotApi = {
   moveRight: () => makeRequest("/api/move/right", "POST"),
   stop: () => makeRequest("/api/move/stop", "POST"),
 
+  /**
+   * Send an 8x8 LED matrix to the Sense HAT.
+   * @param pixels 64 entries, each [r,g,b]
+   */
+  sendSenseHatPixels: (pixels: RGB[]) =>
+    makeRequest("/api/sensehat/leds", "POST", { pixels }),
+
   // Keep generic + legacy helpers so older components don’t crash:
   makeRequest,
-  getCameraFeedUrl: () => `${API_BASE}/api/camera/feed`,
+  getCameraFeedUrl: () => `${API_BASE}/api/camera/feed/rechunk`,
+
+
 };
 
 // Keep default export for legacy imports: `import api from ...`

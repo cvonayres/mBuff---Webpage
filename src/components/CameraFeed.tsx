@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, CameraOff } from 'lucide-react';
-import { robotApi } from '../services/robotApi';
+import React, { useState } from "react";
+import { Camera, CameraOff } from "lucide-react";
+import { robotApi } from "../services/robotApi";
 
-export const CameraFeed: React.FC = () => {
+type CameraFeedProps = {
+  /** Compactness of the camera area */
+  size?: "sm" | "md" | "lg";
+};
+
+export const CameraFeed: React.FC<CameraFeedProps> = ({ size = "md" }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const cameraUrl = robotApi.getCameraFeedUrl();
@@ -17,20 +22,25 @@ export const CameraFeed: React.FC = () => {
     setHasError(true);
   };
 
+  // Height presets to fit layout nicely under the camera column
+  const heightClass =
+    size === "sm" ? "h-48" : size === "lg" ? "h-96" : "h-64";
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 h-full">
+    <div className="bg-white/80 rounded-3xl shadow-lg p-6 border border-white/60">
       <div className="flex items-center space-x-2 mb-4">
         <Camera className="w-6 h-6 text-green-500" />
         <h2 className="text-xl font-bold text-gray-800">Camera View</h2>
       </div>
-      
-      <div className="relative bg-gray-100 rounded-xl overflow-hidden aspect-video">
+
+      {/* Fixed-height container so the painter below is always visible */}
+      <div className={`relative rounded-2xl overflow-hidden bg-gray-100 ${heightClass}`}>
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500" />
           </div>
         )}
-        
+
         {hasError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
             <CameraOff className="w-12 h-12 mb-2" />
@@ -47,10 +57,10 @@ export const CameraFeed: React.FC = () => {
           />
         )}
       </div>
-      
+
       <div className="mt-4 text-center">
         <div className="inline-flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           <span className="text-sm text-green-700 font-medium">Live Feed</span>
         </div>
       </div>
